@@ -24,7 +24,18 @@ class IRMetrics:
                 continue
             
             # YOUR CODE HERE: Calculate recall for this query
-            
+            good_docs = [doc for doc, score in qrels[q_id].items() if score > 0]
+            if len(good_docs) == 0:
+                continue
+
+            docs_in_k = results[q_id][:k]
+            found = 0
+            for doc in docs_in_k:
+                if doc in good_docs:
+                    found += 1
+
+            recall_scores.append(found / len(good_docs))
+
         return np.mean(recall_scores) if recall_scores else 0.0
 
     @staticmethod
@@ -38,7 +49,15 @@ class IRMetrics:
                 continue
             
             # YOUR CODE HERE: Calculate precision for this query
+            good_docs = [doc for doc, score in qrels[q_id].items() if score > 0]
 
+            docs_in_k = results[q_id][:k]
+            found = 0
+            for doc in docs_in_k:
+                if doc in good_docs:
+                    found += 1
+
+            precision_scores.append(found / k)
             
         return np.mean(precision_scores) if precision_scores else 0.0
 
@@ -53,7 +72,18 @@ class IRMetrics:
                 continue
             
             # YOUR CODE HERE: Calculate MRR for this query
+            good_docs = [doc for doc, score in qrels[q_id].items() if score > 0]
 
+            rank_found = 0
+            for spot, doc in enumerate(results[q_id]):
+                if doc in good_docs:
+                    rank_found = spot + 1
+                    break
+
+            if rank_found > 0:
+                reciprocal_ranks.append(1 / rank_found)
+            else:
+                reciprocal_ranks.append(0)
             
         return np.mean(reciprocal_ranks) if reciprocal_ranks else 0.0
 
